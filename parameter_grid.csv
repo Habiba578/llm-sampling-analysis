@@ -1,0 +1,13 @@
+config_id,temperature,top_k,top_p,num_predict,num_ctx,seeds_by_run,status
+C01,0.2,20,0.8,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C02,0.2,20,0.95,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C03,0.2,40,0.8,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C04,0.2,40,0.95,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C05,0.7,20,0.8,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C06,0.7,20,0.95,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C07,0.7,40,0.8,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C08,0.7,40,0.95,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C09,1.0,20,0.8,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C10,1.0,20,0.95,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C11,1.0,40,0.8,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
+C12,1.0,40,0.95,256,4096,run1=42;run2=43;run3=44,CONFIRMED - tested on Ollama (Colab T4)
