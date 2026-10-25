@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decoding Parameter &amp; Sampling Analysis – Results Dashboard</title>
+<style>
+:root{--bg:#f6f8fb;--card:#fff;--tx:#1b2433;--mu:#5b6678;--ac:#1a3c6e;--bd:#d9e0ea;--l:#1f77b4;--q:#ff7f0e;--ok:#2e8b57;--mx:#e0a800;--bad:#c0392b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10151d;--card:#18202b;--tx:#e6ebf2;--mu:#9aa6b8;--ac:#8fb4ee;--bd:#2b3646}}
+:root[data-theme="dark"]{--bg:#10151d;--card:#18202b;--tx:#e6ebf2;--mu:#9aa6b8;--ac:#8fb4ee;--bd:#2b3646}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+header{padding:22px 16px 8px;max-width:980px;margin:auto}
+h1{font-size:1.45rem;margin:0 0 4px;color:var(--ac)}
+h2{font-size:1.1rem;margin:0 0 8px;color:var(--ac)}
+.sub{color:var(--mu);margin:0}
+nav{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;border-bottom:1px solid var(--bd)}
+.tabs{max-width:980px;margin:auto;display:flex;gap:4px;overflow-x:auto;padding:8px 12px}
+.tabs button{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:7px 13px;border-radius:999px;cursor:pointer;font:inherit;white-space:nowrap}
+.tabs button[aria-selected="true"]{background:var(--ac);color:var(--bg);border-color:var(--ac)}
+main{max-width:980px;margin:auto;padding:14px 16px 40px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font-size:1.4rem;color:var(--ac)}.stat span{color:var(--mu);font-size:.85rem}
+ul{margin:6px 0 0;padding-left:20px}li{margin:4px 0}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:10px}
+label{font-size:.85rem;color:var(--mu);display:flex;flex-direction:column;gap:3px}
+select{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx)}
+.leg{display:flex;gap:14px;font-size:.85rem;margin:4px 0 6px;flex-wrap:wrap}
+.leg i{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.sc{overflow-x:auto}
+svg text{fill:var(--tx);font-size:12px}svg .mu{fill:var(--mu)}svg line{stroke:var(--bd)}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:520px}
+th,td{border:1px solid var(--bd);padding:6px 8px;text-align:left}th{background:color-mix(in srgb,var(--ac) 12%,var(--card))}
+.note{color:var(--mu);font-size:.85rem;margin:8px 0 0}
+.ex{border-left:4px solid var(--bd);padding:8px 12px;margin:10px 0;background:color-mix(in srgb,var(--ac) 5%,var(--card));border-radius:0 8px 8px 0}
+.ex .t{font-size:.8rem;color:var(--mu);margin-bottom:3px}.ex code{white-space:pre-wrap;word-break:break-word;font:13px/1.45 ui-monospace,Consolas,monospace}
+.tag{display:inline-block;padding:1px 8px;border-radius:999px;font-size:.75rem;color:#fff}
+.g{background:var(--ok)}.m{background:var(--mx);color:#222}.b{background:var(--bad)}
+</style>
+</head>
+<body>
+<header>
+<h1>Decoding Parameter &amp; Sampling Analysis</h1>
+<p class="sub">How Temperature, Top-K and Top-P change the output of local LLMs (Llama 3.2 3B and Qwen 2.5 3B, run with Ollama)</p>
+</header>
+<nav><div class="tabs" role="tablist" id="tabs"></div></nav>
+<main>
+
+<section id="overview">
+<div class="stats">
+<div class="stat"><b>2,160</b><span>generations (0 errors)</span></div>
+<div class="stat"><b>30</b><span>prompts</span></div>
+<div class="stat"><b>12</b><span>settings (C01–C12)</span></div>
+<div class="stat"><b>2</b><span>models, 3 runs each</span></div>
+</div>
+<div class="card"><h2>Main findings</h2>
+<ul>
+<li><b>Temperature lowers consistency.</b> Exact agreement of three runs falls from 53% to 35% (Llama) and from 65% to 43% (Qwen) between Temperature 0.2 and 0.7. From 0.7 to 1.0 the change is small.</li>
+<li><b>No clear effect of Top-K or Top-P</b> (20 vs 40, 0.8 vs 0.95) in this design: differences were about 2 points or less.</li>
+<li><b>Accuracy was 100%</b> for both models on the easy factual questions, so it could not separate the settings.</li>
+<li><b>Hallucination depended on the model, not on the settings.</b> Main rate on the three probe prompts: Llama 3.7%, Qwen 62.0%.</li>
+<li><b>JSON:</b> strictly valid in 100% of Llama outputs and 94.2% of Qwen outputs; most Qwen failures came from one prompt.</li>
+</ul>
+<p class="note">Time: median 0.34 s (Llama) and 0.32 s (Qwen) per call on a Colab T4 GPU, first call of each model excluded.</p></div>
+<div class="card"><h2>How the experiment worked</h2>
+<p>30 prompts (10 factual, 10 repeated, 10 structured JSON) were sent to each model under 12 combinations of Temperature (0.2, 0.7, 1.0), Top-K (20, 40) and Top-P (0.8, 0.95). Every prompt was run three times with seeds 42, 43 and 44. Because the seeds differ, the study measures consistency across seeds, not strict determinism.</p></div>
+</section>
+
+<section id="consistency">
+<div class="card"><h2>Run-to-run consistency</h2>
+<div class="ctl">
+<label>Group by<select id="cf"><option value="temperature">Temperature</option><option value="top_k">Top-K</option><option value="top_p">Top-P</option><option value="category">Prompt category</option></select></label>
+<label>Metric<select id="cm"><option value="exact">Exact agreement (% of groups)</option><option value="overlap">Word overlap (0–1)</option></select></label>
+</div>
+<div class="leg"><span><i style="background:var(--l)"></i>Llama 3.2 3B</span><span><i style="background:var(--q)"></i>Qwen 2.5 3B</span></div>
+<div class="sc"><div id="cc"></div></div>
+<p class="note" id="cn"></p></div>
+</section>
+
+<section id="hallucination">
+<div class="card"><h2>Hallucination probes</h2>
+<p>F08 and F09 ask about an invented novel and an invented paper; F10 asks who first walked on Mars (false premise). Each answer is labelled <span class="tag g">correct</span>, <span class="tag m">mixed</span> (says it is unsure but still gives invented details) or <span class="tag b">hallucination</span>.</p>
+<div class="sc"><div id="hc"></div></div>
+<div class="sc"><table><thead><tr><th>Model</th><th>Probe</th><th>Outputs</th><th>Main rate</th><th>Strict rate</th></tr></thead><tbody>
+<tr><td>Llama 3.2 3B</td><td>F08, F09 (invented items)</td><td>72</td><td>5.6%</td><td>0%</td></tr>
+<tr><td>Llama 3.2 3B</td><td>F10 (false premise)</td><td>36</td><td>0%</td><td>0%</td></tr>
+<tr><td>Qwen 2.5 3B</td><td>F08, F09 (invented items)</td><td>72</td><td>43.1%</td><td>40.3%</td></tr>
+<tr><td>Qwen 2.5 3B</td><td>F10 (false premise)</td><td>36</td><td>100%</td><td>13.9%</td></tr></tbody></table></div>
+<p class="note">Main rate = hallucination + mixed. Strict rate = clear hallucination only. Qwen’s F10 answers usually said no human has walked on Mars but still called a rover “the first person”, so they are counted as mixed. For Qwen the rate did not rise with Temperature (66.7%, 58.3%, 61.1% at 0.2, 0.7, 1.0). Only three probe prompts were used.</p></div>
+</section>
+
+<section id="json">
+<div class="card"><h2>Structured output (JSON)</h2>
+<p>Share of 36 runs per prompt (3 runs x 12 settings) that were strictly valid JSON, and that had the correct schema and values.</p>
+<div class="sc"><table id="jt"></table></div>
+<p class="note">Neither model used markdown code fences, so lenient validity equals strict validity. S05: both models wrote the year as a string, but the prompt did not say “integer”. S07: Qwen often wrote an array of objects without braces. S06: Qwen often answered “green” for a lemon, while the reference is “Yellow”.</p></div>
+</section>
+
+<section id="examples">
+<div class="card"><h2>Real examples from the results</h2>
+<p class="note">Taken from results/raw_outputs.csv, shortened with “…” where marked.</p>
+<div class="ex"><div class="t">F09 · Llama 3.2 3B · <span class="tag g">correct</span></div><code>I couldn’t find any information on a research paper titled “Recursive Quantum Gradient Folding in Sparse Transformers” by Elena Voskresenskaya published in 2019. It’s possible that the paper does not exist or is not well-known. …</code></div>
+<div class="ex"><div class="t">F09 · Qwen 2.5 3B · <span class="tag b">hallucination</span></div><code>The 2019 research paper “Recursive Quantum Gradient Folding in Sparse Transformers” by Elena Voskresenskaya presents a novel approach to imp…</code></div>
+<div class="ex"><div class="t">F10 · Llama 3.2 3B · <span class="tag g">correct</span></div><code>No human has walked on Mars yet. While there have been several robotic missions to Mars, including rovers like NASA’s Curiosity and Perseverance, no human mission has been sent to the planet. …</code></div>
+<div class="ex"><div class="t">F10 · Qwen 2.5 3B · <span class="tag m">mixed</span></div><code>The first person to walk on Mars was NASA’s Perseverance rover, which landed on Mars on the 18th of February 2021. Although no human has walked on Mars yet, the rover has successfully landed and is currently exploring the planet.</code></div>
+<div class="ex"><div class="t">S05 · Llama 3.2 3B · valid JSON, wrong type</div><code>{"language": "Python", "creator": "Guido van Rossum", "first_released": "1991-02-20"}</code></div>
+<div class="ex"><div class="t">S07 · Qwen 2.5 3B · invalid JSON</div><code>["day": "Monday", "number": 1], ["day": "Tuesday", "number": 2], ["day": "Wednesday", "number": 3]</code></div>
+</div>
+</section>
+
+<section id="about">
+<div class="card"><h2>About and limitations</h2>
+<ul>
+<li>Small experiment: 30 prompts, three runs per prompt, two 3B models, one machine. Differences of a few percentage points are within chance.</li>
+<li>Only two values each of Top-K and Top-P were tested, so no conclusion about them is possible.</li>
+<li>Accuracy and hallucination labels were initially assigned using keyword rules; the project group members then reviewed the flagged answers.</li>
+<li>The invented items in F08 and F09 were not found by a limited web search, which cannot prove that they do not exist.</li>
+<li>42 answers reached the 256-token limit and were cut off (mainly F09).</li>
+</ul>
+<p class="note">Full code, data, evaluation and the PDF report are in the project’s GitHub repository.</p></div>
+</section>
+
+</main>
+<script>
+var TABS=[["overview","Overview"],["consistency","Consistency"],["hallucination","Hallucination"],["json","JSON"],["examples","Examples"],["about","About"]];
+var D={
+temperature:{labels:["0.2","0.7","1.0"],exact:{l:[53.3,35.0,31.7],q:[65.0,43.3,41.7]},overlap:{l:[.839,.708,.708],q:[.881,.739,.706]},note:"Consistency drops clearly from Temperature 0.2 to 0.7; the step from 0.7 to 1.0 is within the uncertainty (about 4–5 points per bar)."},
+top_k:{labels:["20","40"],exact:{l:[40.0,40.0],q:[50.6,49.4]},overlap:{l:[.752,.751],q:[.777,.774]},note:"Top-K 20 vs 40 made no visible difference. Both values are large; a wider range would be needed."},
+top_p:{labels:["0.8","0.95"],exact:{l:[41.1,38.9],q:[50.6,49.4]},overlap:{l:[.764,.739],q:[.783,.767]},note:"Top-P 0.8 vs 0.95 changed exact agreement by about 2 points or less, within the uncertainty."},
+category:{labels:["Factual","Repeated","Structured"],exact:{l:[26.7,23.3,70.0],q:[45.0,36.7,68.3]},overlap:{l:[.701,.581,.972],q:[.706,.636,.983]},note:"JSON answers are far more consistent than free text because the format leaves little room for different wording."}};
+var JS={ids:["S01","S02","S03","S04","S05","S06","S07","S08","S09","S10"],
+ls:[1,1,1,1,1,1,1,1,1,1],lv:[1,1,1,.889,0,1,1,1,1,1],qs:[1,1,1,1,1,1,.417,1,1,1],qv:[1,1,1,1,0,.556,0,1,1,1]};
+function $(i){return document.getElementById(i)}
+function show(id){
+ if(!document.getElementById(id))id="overview";
+ TABS.forEach(function(t){$(t[0]).classList.toggle("on",t[0]===id);document.querySelector('[data-t="'+t[0]+'"]').setAttribute("aria-selected",t[0]===id)});
+ try{history.replaceState(null,"","#"+id)}catch(e){}
+}
+function mkTabs(){
+ TABS.forEach(function(t){var b=document.createElement("button");b.textContent=t[1];b.dataset.t=t[0];b.setAttribute("role","tab");
+ b.onclick=function(){show(t[0]);window.scrollTo(0,0)};$("tabs").appendChild(b)});
+ show((location.hash||"").replace("#","")||"overview");
+}
+function bars(){
+ var f=D[$("cf").value],m=$("cm").value,pct=m==="exact",max=pct?100:1,n=f.labels.length;
+ var W=Math.max(420,n*150+70),H=250,L=44,B=34,T=14,ph=H-B-T,gw=(W-L-10)/n,bw=Math.min(46,gw/2.6),s="";
+ for(var g=0;g<=4;g++){var y=T+ph-ph*g/4;s+='<line x1="'+L+'" x2="'+(W-6)+'" y1="'+y+'" y2="'+y+'"/><text class="mu" x="'+(L-6)+'" y="'+(y+4)+'" text-anchor="end">'+(pct?(max*g/4):(max*g/4).toFixed(2))+'</text>'}
+ f.labels.forEach(function(lb,i){
+  var cx=L+gw*i+gw/2;
+  [["l","var(--l)",-1],["q","var(--q)",1]].forEach(function(k){
+   var v=f[m][k[0]][i],h=ph*v/max,x=cx+(k[2]<0?-bw-2:2),y=T+ph-h;
+   s+='<rect x="'+x+'" y="'+y+'" width="'+bw+'" height="'+h+'" rx="3" fill="'+k[1]+'"/><text x="'+(x+bw/2)+'" y="'+(y-4)+'" text-anchor="middle">'+(pct?v.toFixed(1)+"%":v.toFixed(3))+'</text>'});
+  s+='<text x="'+cx+'" y="'+(H-10)+'" text-anchor="middle">'+lb+'</text>'});
+ $("cc").innerHTML='<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" role="img" aria-label="Consistency chart">'+s+'</svg>';
+ $("cn").textContent=f.note;
+}
+function stack(){
+ var rows=[["Llama · F08, F09",[68,4,0]],["Qwen · F08, F09",[41,2,29]],["Llama · F10",[36,0,0]],["Qwen · F10",[0,31,5]]],
+ col=["var(--ok)","var(--mx)","var(--bad)"],W=640,L=130,bw=W-L-16,s="";
+ rows.forEach(function(r,i){var y=14+i*38,tot=r[1][0]+r[1][1]+r[1][2],x=L;
+  s+='<text x="'+(L-8)+'" y="'+(y+17)+'" text-anchor="end">'+r[0]+'</text>';
+  r[1].forEach(function(v,k){if(!v)return;var w=bw*v/tot;
+   s+='<rect x="'+x+'" y="'+y+'" width="'+w+'" height="26" fill="'+col[k]+'"/>';
+   if(w>26)s+='<text x="'+(x+w/2)+'" y="'+(y+17)+'" text-anchor="middle" style="fill:#fff;font-weight:600">'+v+'</text>';x+=w})});
+ s+='<text class="mu" x="'+L+'" y="176">Counts of answers: green = correct, yellow = mixed, red = hallucination</text>';
+ $("hc").innerHTML='<svg viewBox="0 0 '+W+' 186" width="'+W+'" height="186" role="img" aria-label="Hallucination label counts">'+s+'</svg>';
+}
+function jtab(){
+ function c(v){var p=Math.round(v*1000)/10,bg=v>=.99?"var(--ok)":v>=.5?"var(--mx)":"var(--bad)",tc=v>=.5&&v<.99?"#222":"#fff";
+  return '<td style="background:'+bg+';color:'+tc+';text-align:center">'+p+'%</td>'}
+ var h='<thead><tr><th>Prompt</th><th>Llama valid</th><th>Llama values</th><th>Qwen valid</th><th>Qwen values</th></tr></thead><tbody>';
+ JS.ids.forEach(function(id,i){h+='<tr><td>'+id+'</td>'+c(JS.ls[i])+c(JS.lv[i])+c(JS.qs[i])+c(JS.qv[i])+'</tr>'});
+ h+='<tr><td><b>All 360</b></td><td colspan="2" style="text-align:center">valid 100% · values 88.9%</td><td colspan="2" style="text-align:center">valid 94.2% · values 75.6%</td></tr></tbody>';
+ $("jt").innerHTML=h;
+}
+mkTabs();bars();stack();jtab();
+$("cf").onchange=bars;$("cm").onchange=bars;
+window.addEventListener("hashchange",function(){show((location.hash||"").replace("#","")||"overview")});
+</script>
+</body>
+</html>
